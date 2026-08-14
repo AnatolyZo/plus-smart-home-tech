@@ -25,7 +25,7 @@ public class EventsServiceImpl implements EventsService {
         log.debug("Данные датчика преобразованы в тип SpecificRecordBase - {}", sensor);
         ProducerRecord<String, SpecificRecordBase> record = new ProducerRecord<>(TelemetryTopics.TELEMETRY_SENSORS_TOPIC, sensorEvent.getId(), sensor);
         producer.send(record);
-        log.debug("Создана и отправлена запись в Kafka - {}", record);
+        log.debug("Создана и отправлена запись данных датчика в Kafka - {}", record);
     }
 
     @Override
@@ -35,7 +35,7 @@ public class EventsServiceImpl implements EventsService {
         log.debug("Данные хаба/сценария преобразованы в тип SpecificRecordBase - {}", hub);
         ProducerRecord<String, SpecificRecordBase> record = new ProducerRecord<>(TelemetryTopics.TELEMETRY_HUBS_TOPIC, hubEvent.getHubId(), hub);
         producer.send(record);
-        log.debug("Создана и отправлена запись в Kafka - {}", record);
+        log.debug("Создана и отправлена запись данных хаба/сценария в Kafka - {}", record);
     }
 
     @PreDestroy
