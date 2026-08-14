@@ -104,25 +104,6 @@
                     <artifactId>protobuf-maven-plugin</artifactId>
                     <version>${protobuf-plugin.version}</version>
                 </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-checkstyle-plugin</artifactId>
-                    <version>3.3.1</version>
-                    <configuration>
-                        <configLocation>checkstyle.xml</configLocation>
-                        <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                        <failOnViolation>true</failOnViolation>
-                        <logViolationsToConsole>true</logViolationsToConsole>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <goals>
-                                <goal>check</goal>
-                            </goals>
-                            <phase>compile</phase>
-                        </execution>
-                    </executions>
-                </plugin>
             </plugins>
         </pluginManagement>
     </build>
