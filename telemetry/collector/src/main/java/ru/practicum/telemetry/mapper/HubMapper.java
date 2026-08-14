@@ -20,7 +20,6 @@ public class HubMapper {
         } else if (hubEvent.getHubEventType().equals(HubEventType.SCENARIO_REMOVED)) {
             return mapScenarioRemoved((ScenarioRemovedEvent) hubEvent);
         }
-
         throw new IllegalArgumentException("Передан неизвестный тип хаба " + hubEvent.getClass());
     }
 
