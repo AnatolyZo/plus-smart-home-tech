@@ -1,0 +1,18 @@
+package ru.practicum.telemetry.hubs;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+@Getter
+@Setter
+@ToString
+public class DeviceAddedEvent extends HubEvent {
+    private String id;
+    private DeviceType deviceType;
+
+    @Override
+    public HubEventType getHubEventType() {
+        return HubEventType.DEVICE_ADDED;
+    }
+}
