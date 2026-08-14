@@ -1,0 +1,17 @@
+package ru.practicum.telemetry.hubs;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+@Getter
+@Setter
+@ToString
+public class DeviceRemovedEvent extends HubEvent {
+    private String id;
+
+    @Override
+    public HubEventType getHubEventType() {
+        return HubEventType.DEVICE_REMOVED;
+    }
+}
