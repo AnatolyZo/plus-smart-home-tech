@@ -10,9 +10,6 @@ import java.time.Instant;
 @Setter
 @ToString
 public class TemperatureSensorEvent extends SensorEvent {
-    private String id;
-    private String hubId;
-    private Instant timestamp;
     private int temperatureC;
     private int temperatureF;
 

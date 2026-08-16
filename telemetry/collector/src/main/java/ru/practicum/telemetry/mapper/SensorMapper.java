@@ -52,15 +52,12 @@ public class SensorMapper {
 
     private static SpecificRecordBase mapTemperatureSensor(TemperatureSensorEvent e) {
         var payload = new TemperatureSensorAvro();
-        payload.setId(e.getId());
-        payload.setHubId(e.getHubId());
-        payload.setTimestamp(e.getTimestamp());
         payload.setTemperatureC(e.getTemperatureC());
         payload.setTemperatureF(e.getTemperatureF());
         return setSensorEventAvro(e, payload);
     }
 
-    private static  <T extends SpecificRecordBase> SpecificRecordBase setSensorEventAvro(SensorEvent sensorEvent, T payload) {
+    private static <T extends SpecificRecordBase> SpecificRecordBase setSensorEventAvro(SensorEvent sensorEvent, T payload) {
         var sensorEventAvro = new SensorEventAvro();
         sensorEventAvro.setId(sensorEvent.getId());
         sensorEventAvro.setHubId(sensorEvent.getHubId());

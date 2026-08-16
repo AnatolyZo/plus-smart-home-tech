@@ -8,16 +8,16 @@ import java.util.List;
 
 public class HubMapper {
     public static SpecificRecordBase toAvro(HubEvent hubEvent) {
-        if (hubEvent.getHubEventType().equals(HubEventType.DEVICE_ADDED)) {
+        if (hubEvent.getType().equals(HubEventType.DEVICE_ADDED)) {
             return mapDeviceAdded((DeviceAddedEvent) hubEvent);
-        } else if (hubEvent.getHubEventType().equals(HubEventType.DEVICE_REMOVED)) {
+        } else if (hubEvent.getType().equals(HubEventType.DEVICE_REMOVED)) {
             return mapDeviceRemoved((DeviceRemovedEvent) hubEvent);
-        } else if (hubEvent.getHubEventType().equals(HubEventType.SCENARIO_ADDED)) {
+        } else if (hubEvent.getType().equals(HubEventType.SCENARIO_ADDED)) {
             ScenarioAddedEvent scenarioAddedEvent = (ScenarioAddedEvent) hubEvent;
             List<ScenarioConditionAvro> conditionsAvro = mapScenarioConditions(scenarioAddedEvent.getConditions());
             List<DeviceActionAvro> actionsAvro = mapDeviceActions(scenarioAddedEvent.getActions());
             return mapScenarioAdded((ScenarioAddedEvent) hubEvent, conditionsAvro, actionsAvro);
-        } else if (hubEvent.getHubEventType().equals(HubEventType.SCENARIO_REMOVED)) {
+        } else if (hubEvent.getType().equals(HubEventType.SCENARIO_REMOVED)) {
             return mapScenarioRemoved((ScenarioRemovedEvent) hubEvent);
         }
 
@@ -25,7 +25,6 @@ public class HubMapper {
     }
 
     private static SpecificRecordBase mapDeviceAdded(DeviceAddedEvent e) {
-        System.out.println(e);
         var payload = new DeviceAddedEventAvro();
         payload.setId(e.getId());
         payload.setType(e.getDeviceType().toAvro());
@@ -67,7 +66,7 @@ public class HubMapper {
                     var actionAvro = new DeviceActionAvro();
                     actionAvro.setSensorId(action.getSensorId());
                     actionAvro.setType(action.getType().toAvro());
-                    actionAvro.setValue(actionAvro.getValue());
+                    actionAvro.setValue((Integer) action.getValue());
                     return actionAvro;
                 })
                 .toList();
