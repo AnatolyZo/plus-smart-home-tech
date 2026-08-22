@@ -1,3 +1,5 @@
+option java_package = "ru.yandex.practicum.grpc.telemetry.collector";
+
 package telemetry.service.collector;
 
 import "google/protobuf/empty.proto";
