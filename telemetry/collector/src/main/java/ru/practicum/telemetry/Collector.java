@@ -7,9 +7,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class TelemetryMainClass {
+public class Collector {
     public static void main(String[] args) {
-        SpringApplication.run(TelemetryMainClass.class, args);
+        SpringApplication.run(Collector.class, args);
         ((ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME))
                 .setLevel(Level.INFO);
     }
