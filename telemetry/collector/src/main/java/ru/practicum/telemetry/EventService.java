@@ -16,13 +16,13 @@ import ru.yandex.practicum.grpc.telemetry.event.*;
 @GrpcService
 @RequiredArgsConstructor
 public class EventService extends CollectorControllerGrpc.CollectorControllerImplBase {
-    private final EventsService eventsService;
+    private final KafkaSenderService kafkaSenderService;
 
     @Override
     public void collectSensorEvent(SensorEventProto request, StreamObserver<Empty> responseObserver) {
         try {
             SensorEvent sensorEvent = SensorMapper.toSensorEvent(request);
-            eventsService.processSensorEvent(sensorEvent);
+            kafkaSenderService.processSensorEvent(sensorEvent);
 
             responseObserver.onNext(Empty.getDefaultInstance());
             responseObserver.onCompleted();
@@ -39,7 +39,7 @@ public class EventService extends CollectorControllerGrpc.CollectorControllerImp
     public void collectHubEvent(HubEventProto request, StreamObserver<Empty> responseObserver) {
         try {
             HubEvent hubEvent = HubMapper.toHubEvent(request);
-            eventsService.processHubEvent(hubEvent);
+            kafkaSenderService.processHubEvent(hubEvent);
 
             responseObserver.onNext(Empty.getDefaultInstance());
             responseObserver.onCompleted();

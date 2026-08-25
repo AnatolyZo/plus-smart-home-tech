@@ -19,6 +19,7 @@ public class ProducerConfiguration {
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
         config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, TelemetryAvroSerializer.class.getName());
+        config.put(ProducerConfig.CLIENT_ID_CONFIG, "collector-producer");
 
         return new KafkaProducer<>(config);
     }

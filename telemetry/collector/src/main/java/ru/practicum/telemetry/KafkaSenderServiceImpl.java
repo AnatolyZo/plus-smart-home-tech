@@ -15,7 +15,7 @@ import ru.practicum.telemetry.sensors.SensorEvent;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class EventsServiceImpl implements EventsService {
+public class KafkaSenderServiceImpl implements KafkaSenderService {
     private final Producer<String, SpecificRecordBase> producer;
 
     @Override
