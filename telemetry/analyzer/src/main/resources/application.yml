@@ -1,0 +1,32 @@
+spring:
+  main:
+    banner-mode: OFF
+  datasource:
+    driverClassName: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: dbuser
+    password: 12345
+  kafka:
+    consumer:
+      common:
+        bootstrap-servers: localhost:9092
+        key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      snapshot:
+        value-deserializer: ru.practicum.telemetry.SensorsSnapshotDeserializer
+        client-id: analyzer-snapshot-consumer
+        group-id: analyzer.snapshot.group
+      hub:
+        value-deserializer: ru.practicum.telemetry.HubEventDeserializer
+        client-id: analyzer-hub-consumer
+        group-id: analyzer.hub.group
+
+server:
+  port: 8082
+
+grpc:
+  client:
+    hub-router:
+      address: 'static://localhost:59090'
+      enableKeepAlive: true
+      keepAliveWithoutCalls: true
+      negotiationType: plaintext
