@@ -4,25 +4,41 @@ import com.google.protobuf.Empty;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
-import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.server.service.GrpcService;
-import ru.practicum.telemetry.hubs.HubEvent;
-import ru.practicum.telemetry.mapper.HubMapper;
-import ru.practicum.telemetry.mapper.SensorMapper;
-import ru.practicum.telemetry.sensors.SensorEvent;
+import ru.practicum.telemetry.handlers.hub.HubEventHandler;
+import ru.practicum.telemetry.handlers.sensor.SensorEventHandler;
 import ru.yandex.practicum.grpc.telemetry.collector.CollectorControllerGrpc;
 import ru.yandex.practicum.grpc.telemetry.event.*;
 
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 @GrpcService
-@RequiredArgsConstructor
 public class EventService extends CollectorControllerGrpc.CollectorControllerImplBase {
     private final KafkaSenderService kafkaSenderService;
+    private final Map<SensorEventProto.PayloadCase, SensorEventHandler> sensorEventHandlers;
+    private final Map<HubEventProto.PayloadCase, HubEventHandler> hubEventHandlers;
+
+    public EventService(KafkaSenderService kafkaSenderService,
+                        Set<SensorEventHandler> sensorEventHandlers,
+                        Set<HubEventHandler> hubEventHandlers) {
+        this.kafkaSenderService = kafkaSenderService;
+        this.sensorEventHandlers = sensorEventHandlers.stream()
+                .collect(Collectors.toMap(SensorEventHandler::getMessageType, Function.identity()));
+        this.hubEventHandlers = hubEventHandlers.stream()
+                .collect(Collectors.toMap(HubEventHandler::getMessageType, Function.identity()));
+    }
 
     @Override
     public void collectSensorEvent(SensorEventProto request, StreamObserver<Empty> responseObserver) {
         try {
-            SensorEvent sensorEvent = SensorMapper.toSensorEvent(request);
-            kafkaSenderService.processSensorEvent(sensorEvent);
+            if (sensorEventHandlers.containsKey(request.getPayloadCase())) {
+                sensorEventHandlers.get(request.getPayloadCase()).handle(request);
+            } else {
+                throw new IllegalArgumentException("Не могу найти обработчик для события " + request.getPayloadCase());
+            }
 
             responseObserver.onNext(Empty.getDefaultInstance());
             responseObserver.onCompleted();
@@ -38,8 +54,9 @@ public class EventService extends CollectorControllerGrpc.CollectorControllerImp
     @Override
     public void collectHubEvent(HubEventProto request, StreamObserver<Empty> responseObserver) {
         try {
-            HubEvent hubEvent = HubMapper.toHubEvent(request);
-            kafkaSenderService.processHubEvent(hubEvent);
+            if (hubEventHandlers.containsKey(request.getPayloadCase())) {
+                hubEventHandlers.get(request.getPayloadCase()).handle(request);
+            }
 
             responseObserver.onNext(Empty.getDefaultInstance());
             responseObserver.onCompleted();
