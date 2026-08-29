@@ -7,7 +7,6 @@ import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
 import ru.practicum.telemetry.handlers.hub.HubEventHandler;
 import ru.practicum.telemetry.handlers.sensor.SensorEventHandler;
-import ru.practicum.telemetry.hubs.HubEvent;
 import ru.yandex.practicum.grpc.telemetry.collector.CollectorControllerGrpc;
 import ru.yandex.practicum.grpc.telemetry.event.*;
 

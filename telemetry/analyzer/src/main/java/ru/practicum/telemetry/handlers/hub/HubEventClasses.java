@@ -1,4 +1,4 @@
-package ru.practicum.telemetry.handlers;
+package ru.practicum.telemetry.handlers.hub;
 
 import lombok.Getter;
 import ru.yandex.practicum.kafka.telemetry.event.DeviceAddedEventAvro;

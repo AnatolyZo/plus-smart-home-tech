@@ -10,4 +10,5 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class CommonConsumerProps {
     private String bootstrapServers;
     private String keyDeserializer;
+    private String enableAutoCommit;
 }

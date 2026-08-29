@@ -1,9 +1,15 @@
 package ru.practicum.telemetry.entities;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
 @Table(name = "scenario_conditions")
+@Setter
+@Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ScenarioCondition {
     @EmbeddedId
     private ScenarioConditionId id;

@@ -1,12 +1,18 @@
 package ru.practicum.telemetry.entities;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "scenarios", schema = "public")
+@Setter
+@Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Scenario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

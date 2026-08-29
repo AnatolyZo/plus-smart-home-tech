@@ -6,11 +6,10 @@ import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.common.errors.WakeupException;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import ru.practicum.telemetry.TelemetryTopics;
-import ru.practicum.telemetry.config.CommonConsumerProps;
-import ru.practicum.telemetry.config.HubConsumerProps;
-import ru.practicum.telemetry.handlers.HubEventHandler;
+import ru.practicum.telemetry.handlers.hub.HubEventHandler;
 import ru.yandex.practicum.kafka.telemetry.event.HubEventAvro;
 
 import java.time.Duration;
@@ -23,15 +22,12 @@ import java.util.stream.Collectors;
 @Component
 @Slf4j
 public class HubEventProcessor implements Runnable {
-    private final CommonConsumerProps commonProps;
-    private final HubConsumerProps hubProps;
+    private final Consumer<String, SpecificRecordBase> consumer;
     private final Map<Class<?>, HubEventHandler> hubEventHandlers;
 
-    public HubEventProcessor(CommonConsumerProps commonProps,
-                             HubConsumerProps hubProps,
+    public HubEventProcessor(@Qualifier("hubConsumer") Consumer<String, SpecificRecordBase> consumer,
                              Set<HubEventHandler> hubEventHandlers) {
-        this.commonProps = commonProps;
-        this.hubProps = hubProps;
+        this.consumer = consumer;
         this.hubEventHandlers = hubEventHandlers.stream()
                 .collect(Collectors.toMap(HubEventHandler::getPayloadClass, Function.identity()));
     }
@@ -41,8 +37,6 @@ public class HubEventProcessor implements Runnable {
 
     @Override
     public void run() {
-        Consumer<String, SpecificRecordBase> consumer = ConsumerCreator.createKafkaConsumer(commonProps, hubProps);
-
         Runtime.getRuntime().addShutdownHook(new Thread(consumer::wakeup));
 
         try {
@@ -62,24 +56,29 @@ public class HubEventProcessor implements Runnable {
                     Object payload = hubEventAvro.getPayload();
 
                     if (payload == null) {
+                        log.warn("Отсутствует поле payload у объекта {}", hubEventAvro);
                         throw new IllegalArgumentException("Отсутствует поле payload у объекта " + hubEventAvro);
                     }
 
                     Class<?> eventClass = payload.getClass();
 
                     if (hubEventHandlers.containsKey(eventClass)) {
-                        hubEventHandlers.get(eventClass).handle(payload);
+                        hubEventHandlers.get(eventClass).handle(hubEventAvro);
                     } else {
                         throw new IllegalArgumentException("Не могу найти обработчик для события " + hubEventAvro.getPayload());
                     }
                 }
+
+                consumer.commitSync();
             }
 
         } catch (WakeupException e) {
 
         } finally {
-            try (consumer) {
+            try {
                 consumer.commitSync();
+            } finally {
+                consumer.close();
             }
         }
     }

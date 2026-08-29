@@ -113,7 +113,7 @@ public class HubMapper {
     }
 
     private static DeviceType toDeviceType(DeviceTypeProto typeProto) {
-        Optional<DeviceType> deviceType = EnumMapper.fromProto(DeviceType.values(), typeProto.name());
+        Optional<DeviceType> deviceType = EnumMapper.toAppEnum(DeviceType.values(), typeProto.name());
 
         if (deviceType.isPresent()) {
             return deviceType.get();
@@ -154,7 +154,7 @@ public class HubMapper {
     }
 
     private static ConditionType toConditionType(ConditionTypeProto condition) {
-        Optional<ConditionType> conditionType = EnumMapper.fromProto(ConditionType.values(), condition.name());
+        Optional<ConditionType> conditionType = EnumMapper.toAppEnum(ConditionType.values(), condition.name());
 
         if (conditionType.isPresent()) {
             return conditionType.get();
@@ -164,7 +164,7 @@ public class HubMapper {
     }
 
     private static ConditionOperation toConditionOperation(ConditionOperationProto operation) {
-        Optional<ConditionOperation> conditionOperation = EnumMapper.fromProto(ConditionOperation.values(), operation.name());
+        Optional<ConditionOperation> conditionOperation = EnumMapper.toAppEnum(ConditionOperation.values(), operation.name());
 
         if (conditionOperation.isPresent()) {
             return conditionOperation.get();
@@ -186,7 +186,7 @@ public class HubMapper {
     }
 
     private static ActionType toActionType(ActionTypeProto actionTypeProto) {
-        Optional<ActionType> actionType = EnumMapper.fromProto(ActionType.values(), actionTypeProto.name());
+        Optional<ActionType> actionType = EnumMapper.toAppEnum(ActionType.values(), actionTypeProto.name());
 
         if (actionType.isPresent()) {
             return actionType.get();

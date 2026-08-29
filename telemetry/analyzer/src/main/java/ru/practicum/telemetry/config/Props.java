@@ -6,4 +6,10 @@ public interface Props {
     String getGroupId();
 
     String getValueDeserializer();
+
+    String getAutoOffsetReset();
+
+    String getMaxPollRecords();
+
+    String getMaxPollInterval();
 }

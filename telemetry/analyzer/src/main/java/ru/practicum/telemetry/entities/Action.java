@@ -1,13 +1,16 @@
 package ru.practicum.telemetry.entities;
 
 import jakarta.persistence.*;
+import lombok.*;
 import ru.practicum.telemetry.enums.ActionType;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "actions", schema = "public")
+@Setter
+@Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Action {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,7 +20,4 @@ public class Action {
     private ActionType type;
 
     private Integer value;
-
-    @OneToMany(mappedBy = "action", cascade = CascadeType.ALL)
-    private List<ScenarioAction> scenarioActions = new ArrayList<>();
 }

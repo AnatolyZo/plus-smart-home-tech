@@ -11,4 +11,7 @@ public class SnapshotConsumerProps implements Props {
     private String clientId;
     private String groupId;
     private String valueDeserializer;
+    private String autoOffsetReset;
+    private String maxPollRecords;
+    private String maxPollInterval;
 }

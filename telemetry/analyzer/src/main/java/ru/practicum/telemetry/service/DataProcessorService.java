@@ -1,14 +1,16 @@
 package ru.practicum.telemetry.service;
 
-import ru.practicum.telemetry.entities.Scenario;
-import ru.practicum.telemetry.entities.Sensor;
+import ru.yandex.practicum.kafka.telemetry.event.DeviceAddedEventAvro;
+import ru.yandex.practicum.kafka.telemetry.event.DeviceRemovedEventAvro;
+import ru.yandex.practicum.kafka.telemetry.event.ScenarioAddedEventAvro;
+import ru.yandex.practicum.kafka.telemetry.event.ScenarioRemovedEventAvro;
 
 public interface DataProcessorService {
-    void addScenario(Scenario scenario);
+    void addScenario(String hubId, ScenarioAddedEventAvro payload);
 
-    void removeScenario(Scenario scenario);
+    void removeScenario(String hubId, ScenarioRemovedEventAvro payload);
 
-    void addSensor(Sensor sensor);
+    void addSensor(String hubId, DeviceAddedEventAvro payload);
 
-    void removeSensor(Sensor sensor);
+    void removeSensor(DeviceRemovedEventAvro payload, String hubId);
 }

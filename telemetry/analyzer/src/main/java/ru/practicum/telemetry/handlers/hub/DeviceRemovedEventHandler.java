@@ -1,8 +1,10 @@
-package ru.practicum.telemetry.handlers;
+package ru.practicum.telemetry.handlers.hub;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.practicum.telemetry.service.DataProcessorService;
+import ru.yandex.practicum.kafka.telemetry.event.DeviceRemovedEventAvro;
+import ru.yandex.practicum.kafka.telemetry.event.HubEventAvro;
 
 @Component
 @RequiredArgsConstructor
@@ -16,6 +18,9 @@ public class DeviceRemovedEventHandler implements HubEventHandler {
 
 
     @Override
-    public void handle(Object payload) {
+    public void handle(Object hubEvent) {
+        HubEventAvro event = (HubEventAvro) hubEvent;
+        DeviceRemovedEventAvro payload = (DeviceRemovedEventAvro) event.getPayload();
+        dataProcessorService.removeSensor(payload, event.getHubId());
     }
 }
