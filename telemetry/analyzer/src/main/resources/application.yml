@@ -28,7 +28,10 @@ spring:
         max-poll-interval: 300000
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
+  sql:
+    init:
+      mode: always
     properties:
       hibernate:
         format_sql: true

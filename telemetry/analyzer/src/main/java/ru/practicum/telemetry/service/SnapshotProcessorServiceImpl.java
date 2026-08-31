@@ -1,7 +1,6 @@
 package ru.practicum.telemetry.service;
 
 import com.google.protobuf.Timestamp;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Service;
@@ -27,7 +26,6 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-@Getter
 public class SnapshotProcessorServiceImpl implements SnapshotProcessorService {
     private final HubRouterControllerGrpc.HubRouterControllerBlockingStub hubRouterClient;
     private final Map<Class<?>, SnapshotHandler> snapshotHandlers;

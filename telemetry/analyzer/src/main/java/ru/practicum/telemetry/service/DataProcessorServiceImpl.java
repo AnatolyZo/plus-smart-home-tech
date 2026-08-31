@@ -51,6 +51,12 @@ public class DataProcessorServiceImpl implements DataProcessorService {
     @Override
     public void removeScenario(String hubId, ScenarioRemovedEventAvro payload) {
         log.trace("Начат процесс удаления сценария");
+        Scenario removingScenario = scenarioRepository.findByHubIdAndName(hubId, payload.getName())
+                        .orElseThrow(() -> new IllegalArgumentException(String.format("Переданы неверные hubId = %s и name = %s, сценарий для удаления в БД отсутствует", hubId, payload.getName())));
+
+        deleteConditionEntitiesFromDb(removingScenario);
+        deleteActionEntitiesFromDb(removingScenario);
+
         scenarioRepository.deleteByHubIdAndName(hubId, payload.getName());
         log.debug("Удален сценарий с названием name = {} для хаба с hubId = {}", payload.getName(), hubId);
     }
@@ -68,6 +74,16 @@ public class DataProcessorServiceImpl implements DataProcessorService {
     @Override
     public void removeSensor(DeviceRemovedEventAvro payload, String hubId) {
         log.trace("Начат процесс удаления датчика");
+        String sensorId = payload.getId();
+
+        boolean usedInConditions = scenarioRepository.isSensorAssociatedWithConditions(sensorId, hubId);
+        boolean usedInActions = scenarioRepository.isSensorAssociatedWithActions(sensorId, hubId);
+
+        if (usedInConditions || usedInActions) {
+            throw new IllegalStateException(String.format("Датчик с id = %s используется в сценариях " +
+                    "для хаба с hubId = %s. Необходимо удаление связанных сценариев перед удалением датчика.", payload.getId(), hubId));
+        }
+
         sensorRepository.deleteByIdAndHubId(payload.getId(), hubId);
         log.debug("Удален датчик с названием id = {} для хаба с hubId = {}", payload.getId(), hubId);
     }
@@ -78,7 +94,11 @@ public class DataProcessorServiceImpl implements DataProcessorService {
 
         if (scenarioDb.isPresent()) {
             scenario = scenarioDb.get();
+
+            deleteConditionEntitiesFromDb(scenario);
             scenario.getConditions().clear();
+
+            deleteActionEntitiesFromDb(scenario);
             scenario.getActions().clear();
             log.debug("Редактируется существующий сценарий scenario = {}", scenario);
         } else {
@@ -91,6 +111,20 @@ public class DataProcessorServiceImpl implements DataProcessorService {
         }
 
         return scenario;
+    }
+
+    private void deleteConditionEntitiesFromDb(Scenario scenario) {
+        List<Long> conditionIds = scenario.getConditions().stream()
+                .map(scenarioCondition -> scenarioCondition.getCondition().getId())
+                .toList();
+        conditionRepository.deleteAllById(conditionIds);
+    }
+
+    private void deleteActionEntitiesFromDb(Scenario scenario) {
+        List<Long> actionIds = scenario.getActions().stream()
+                .map(scenarioAction -> scenarioAction.getAction().getId())
+                .toList();
+        actionRepository.deleteAllById(actionIds);
     }
 
     private Map<String, Sensor> getSensorsForConditions(String hubId, List<ScenarioConditionAvro> conditions) {
@@ -115,7 +149,6 @@ public class DataProcessorServiceImpl implements DataProcessorService {
     private ScenarioCondition createScenarioCondition(ScenarioConditionAvro conditionAvro,
                                                       Scenario scenario,
                                                       Map<String, Sensor> sensorsMap) {
-        System.out.println(sensorsMap);
         Sensor sensor = sensorsMap.get(conditionAvro.getSensorId());
         Condition condition = formCondition(conditionAvro);
 
@@ -143,7 +176,8 @@ public class DataProcessorServiceImpl implements DataProcessorService {
                 .orElseThrow(() -> new IllegalArgumentException("Передан неизвестный тип условия " + conditionAvro.getType().name()));
 
         ConditionOperation conditionOperation = EnumMapper.toAppEnum(ConditionOperation.values(), conditionAvro.getOperation().name())
-                .orElseThrow(() -> new IllegalArgumentException("Передан неизвестный тип операции " + conditionAvro.getType().name()));;
+                .orElseThrow(() -> new IllegalArgumentException("Передан неизвестный тип операции " + conditionAvro.getType().name()));
+        ;
 
         Condition condition = Condition.builder()
                 .type(conditionType)
@@ -188,6 +222,11 @@ public class DataProcessorServiceImpl implements DataProcessorService {
                                                 Map<String, Sensor> sensorsMap) {
         Sensor sensor = sensorsMap.get(actionAvro.getSensorId());
         Action action = formAction(actionAvro);
+
+        if (sensor == null) {
+            log.warn("Не найден сенсор с id = {}", actionAvro.getSensorId());
+            throw new IllegalArgumentException("Не найден сенсор с id = " + actionAvro.getSensorId());
+        }
 
         ScenarioActionId id = ScenarioActionId.builder()
                 .scenarioId(scenario.getId())

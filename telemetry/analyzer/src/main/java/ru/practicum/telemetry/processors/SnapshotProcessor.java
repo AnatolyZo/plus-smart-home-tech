@@ -5,6 +5,8 @@ import org.apache.avro.specific.SpecificRecordBase;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.OffsetAndMetadata;
+import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -13,7 +15,9 @@ import ru.practicum.telemetry.service.SnapshotProcessorService;
 import ru.yandex.practicum.kafka.telemetry.event.SensorsSnapshotAvro;
 
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Component
 @Slf4j
@@ -38,34 +42,51 @@ public class SnapshotProcessor {
 
             while (true) {
                 ConsumerRecords<String, SpecificRecordBase> records = consumer.poll(CONSUME_ATTEMPT_TIMEOUT);
+                Map<TopicPartition, OffsetAndMetadata> offsets = new HashMap<>();
 
                 for (ConsumerRecord<String, SpecificRecordBase> record : records) {
-                    SpecificRecordBase base = record.value();
-
-                    if (!(base instanceof SensorsSnapshotAvro)) {
-                        log.warn("Получен неизвестный тип записи {}", base.getClass());
-                        throw new IllegalArgumentException("Получен неизвестный тип записи " + base.getClass());
-                    }
-
-                    SensorsSnapshotAvro sensorsSnapshotAvro = (SensorsSnapshotAvro) base;
-
                     try {
+                        SpecificRecordBase base = record.value();
+
+                        if (base == null) {
+                            log.warn("Переданное сообщение пусто");
+                            offsets.put(
+                                    new TopicPartition(record.topic(), record.partition()),
+                                    new OffsetAndMetadata(record.offset() + 1)
+                            );
+                            continue;
+                        }
+
+                        if (!(base instanceof SensorsSnapshotAvro)) {
+                            log.warn("Получен неизвестный тип записи {}", base.getClass());
+                            offsets.put(
+                                    new TopicPartition(record.topic(), record.partition()),
+                                    new OffsetAndMetadata(record.offset() + 1)
+                            );
+                            continue;
+                        }
+
+                        SensorsSnapshotAvro sensorsSnapshotAvro = (SensorsSnapshotAvro) base;
+
                         snapshotProcessorService.processSnapshot(sensorsSnapshotAvro);
-                        consumer.commitAsync();
+                        offsets.put(
+                                new TopicPartition(record.topic(), record.partition()),
+                                new OffsetAndMetadata(record.offset() + 1)
+                        );
                     } catch (Exception e) {
                         log.error("Ошибка обработки снапшота, offset = {}, key = {}", record.offset(), record.key(), e);
                         break;
                     }
                 }
+
+                if (!offsets.isEmpty()) {
+                    consumer.commitSync(offsets);
+                }
             }
         } catch (WakeupException e) {
 
         } finally {
-            try {
-                consumer.commitSync();
-            } finally {
-                consumer.close();
-            }
+            consumer.close();
         }
     }
 }

@@ -46,26 +46,36 @@ public class HubEventProcessor implements Runnable {
                 ConsumerRecords<String, SpecificRecordBase> records = consumer.poll(CONSUME_ATTEMPT_TIMEOUT);
 
                 for (ConsumerRecord<String, SpecificRecordBase> record : records) {
-                    SpecificRecordBase base = record.value();
+                    try {
+                        SpecificRecordBase base = record.value();
 
-                    if (!(base instanceof HubEventAvro)) {
-                        throw new IllegalArgumentException("Неизвестный тип записи " + base.getClass());
-                    }
+                        if (base == null) {
+                            log.warn("Переданное сообщение пусто");
+                            continue;
+                        }
 
-                    HubEventAvro hubEventAvro = (HubEventAvro) base;
-                    Object payload = hubEventAvro.getPayload();
+                        if (!(base instanceof HubEventAvro)) {
+                            log.warn("Неизвестный тип записи {}", base.getClass());
+                            continue;
+                        }
 
-                    if (payload == null) {
-                        log.warn("Отсутствует поле payload у объекта {}", hubEventAvro);
-                        throw new IllegalArgumentException("Отсутствует поле payload у объекта " + hubEventAvro);
-                    }
+                        HubEventAvro hubEventAvro = (HubEventAvro) base;
+                        Object payload = hubEventAvro.getPayload();
 
-                    Class<?> eventClass = payload.getClass();
+                        if (payload == null) {
+                            log.warn("Отсутствует поле payload у объекта {}", hubEventAvro);
+                            continue;
+                        }
 
-                    if (hubEventHandlers.containsKey(eventClass)) {
-                        hubEventHandlers.get(eventClass).handle(hubEventAvro);
-                    } else {
-                        throw new IllegalArgumentException("Не могу найти обработчик для события " + hubEventAvro.getPayload());
+                        Class<?> eventClass = payload.getClass();
+
+                        if (hubEventHandlers.containsKey(eventClass)) {
+                            hubEventHandlers.get(eventClass).handle(hubEventAvro);
+                        } else {
+                            log.warn("Не могу найти обработчик для события {}", hubEventAvro.getPayload());
+                        }
+                    } catch (Exception e) {
+                        log.warn("Ошибка обработки записи, offset = {}, key = {}", record.offset(), record.key(), e);
                     }
                 }
 
