@@ -177,25 +177,11 @@ public class DataProcessorServiceTests {
         String hubId = "hub-1";
         String scenarioName = "test-invalid-type";
 
-        ScenarioConditionAvro conditionInvalid = ScenarioConditionAvro.newBuilder()
-                .setSensorId("sensor-006")
-                .setType(ConditionTypeAvro.MOTION)
-                .setOperation(ConditionOperationAvro.EQUALS)
-                .setValue("INVALID_STRING")
-                .build();
+        ScenarioAddedEventAvro payload = createScenarioAddedEvent(List.of(createScenarioConditionAvro("INVALID TYPE")), List.of());
 
-        List<ScenarioConditionAvro> conditions = List.of(conditionInvalid);
-        List<DeviceActionAvro> actions = List.of();
-
-        ScenarioAddedEventAvro payload = ScenarioAddedEventAvro.newBuilder()
-                .setName(scenarioName)
-                .setConditions(conditions)
-                .setActions(actions)
-                .build();
-
-        Sensor s6 = createSensor("sensor-006", hubId);
+        Sensor sensor = createSensor("climate-sensor-001", hubId);
         when(sensorRepository.findBySensorIdsAndHub(anyList(), eq(hubId)))
-                .thenReturn(List.of(s6));
+                .thenReturn(List.of(sensor));
 
         IllegalArgumentException exception = Assertions.assertThrows(
                 IllegalArgumentException.class,
