@@ -4,6 +4,7 @@ import org.apache.avro.specific.SpecificRecordBase;
 import org.junit.jupiter.api.Test;
 import ru.practicum.telemetry.mapper.SensorMapper;
 import ru.practicum.telemetry.sensors.SensorEvent;
+import ru.yandex.practicum.grpc.telemetry.event.SensorEventProto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -11,9 +12,9 @@ public class SensorMapperTests {
 
     @Test
     void climateSensorMappingTest() {
-        SensorEvent event = TestEntities.createClimateSenorEvent(TestEntities.SENSOR_ID, TestEntities.HUB_ID);
-        SpecificRecordBase climateSensorEventAvro = TestEntities.createClimateSensorEventAvro();
-        SpecificRecordBase expectedEvent = TestEntities.createTestSensorEventAvro(climateSensorEventAvro);
+        SensorEvent event = TestSensorEntities.createClimateSenorEvent(TestSensorEntities.SENSOR_ID, TestSensorEntities.HUB_ID);
+        SpecificRecordBase climateSensorEventAvro = TestSensorEntities.createClimateSensorEventAvro();
+        SpecificRecordBase expectedEvent = TestSensorEntities.createTestSensorEventAvro(climateSensorEventAvro);
 
         SpecificRecordBase result = SensorMapper.toAvro(event);
 
@@ -22,9 +23,9 @@ public class SensorMapperTests {
 
     @Test
     void lightSensorMappingTest() {
-        SensorEvent event = TestEntities.createLightSensorEvent(TestEntities.SENSOR_ID, TestEntities.HUB_ID);
-        SpecificRecordBase lightSensorEventAvro = TestEntities.createLightSensorEventAvro();
-        SpecificRecordBase expectedEvent = TestEntities.createTestSensorEventAvro(lightSensorEventAvro);
+        SensorEvent event = TestSensorEntities.createLightSensorEvent(TestSensorEntities.SENSOR_ID, TestSensorEntities.HUB_ID);
+        SpecificRecordBase lightSensorEventAvro = TestSensorEntities.createLightSensorEventAvro();
+        SpecificRecordBase expectedEvent = TestSensorEntities.createTestSensorEventAvro(lightSensorEventAvro);
 
         SpecificRecordBase result = SensorMapper.toAvro(event);
 
@@ -33,9 +34,9 @@ public class SensorMapperTests {
 
     @Test
     void motionSensorMappingTest() {
-        SensorEvent event = TestEntities.createMotionSenorEvent(TestEntities.SENSOR_ID, TestEntities.HUB_ID);
-        SpecificRecordBase motionSensorEventAvro = TestEntities.createMotionSensorEventAvro();
-        SpecificRecordBase expectedEvent = TestEntities.createTestSensorEventAvro(motionSensorEventAvro);
+        SensorEvent event = TestSensorEntities.createMotionSenorEvent(TestSensorEntities.SENSOR_ID, TestSensorEntities.HUB_ID);
+        SpecificRecordBase motionSensorEventAvro = TestSensorEntities.createMotionSensorEventAvro();
+        SpecificRecordBase expectedEvent = TestSensorEntities.createTestSensorEventAvro(motionSensorEventAvro);
 
         SpecificRecordBase result = SensorMapper.toAvro(event);
 
@@ -44,9 +45,9 @@ public class SensorMapperTests {
 
     @Test
     void switchSensorMappingTest() {
-        SensorEvent event = TestEntities.createSwitchSenorEvent(TestEntities.SENSOR_ID, TestEntities.HUB_ID);
-        SpecificRecordBase switchSensorEventAvro = TestEntities.createSwitchSensorEventAvro();
-        SpecificRecordBase expectedEvent = TestEntities.createTestSensorEventAvro(switchSensorEventAvro);
+        SensorEvent event = TestSensorEntities.createSwitchSenorEvent(TestSensorEntities.SENSOR_ID, TestSensorEntities.HUB_ID);
+        SpecificRecordBase switchSensorEventAvro = TestSensorEntities.createSwitchSensorEventAvro();
+        SpecificRecordBase expectedEvent = TestSensorEntities.createTestSensorEventAvro(switchSensorEventAvro);
 
         SpecificRecordBase result = SensorMapper.toAvro(event);
 
@@ -55,11 +56,61 @@ public class SensorMapperTests {
 
     @Test
     void temperatureSensorMappingTest() {
-        SensorEvent event = TestEntities.createTemperatureSenorEvent(TestEntities.SENSOR_ID, TestEntities.HUB_ID);
-        SpecificRecordBase temperatureSensorEventAvro = TestEntities.createTemperatureSensorEventAvro();
-        SpecificRecordBase expectedEvent = TestEntities.createTestSensorEventAvro(temperatureSensorEventAvro);
+        SensorEvent event = TestSensorEntities.createTemperatureSenorEvent(TestSensorEntities.SENSOR_ID, TestSensorEntities.HUB_ID);
+        SpecificRecordBase temperatureSensorEventAvro = TestSensorEntities.createTemperatureSensorEventAvro();
+        SpecificRecordBase expectedEvent = TestSensorEntities.createTestSensorEventAvro(temperatureSensorEventAvro);
 
         SpecificRecordBase result = SensorMapper.toAvro(event);
+
+        assertThat(result).isEqualTo(expectedEvent);
+    }
+
+    @Test
+    void climateSensorMappingToSensorEventTest() {
+        SensorEventProto event = TestSensorEntities.createClimateSensorEventProto();
+        SensorEvent expectedEvent = TestSensorEntities.createClimateSenorEvent(TestSensorEntities.SENSOR_ID, TestSensorEntities.HUB_ID);
+
+        SensorEvent result = SensorMapper.mapToClimateSensorEvent(event);
+
+        assertThat(result).isEqualTo(expectedEvent);
+    }
+
+    @Test
+    void lightSensorMappingToSensorEventTest() {
+        SensorEventProto event = TestSensorEntities.createLightSensorEventProto();
+        SensorEvent expectedEvent = TestSensorEntities.createLightSensorEvent(TestSensorEntities.SENSOR_ID, TestSensorEntities.HUB_ID);
+
+        SensorEvent result = SensorMapper.mapToLightSensorEvent(event);
+
+        assertThat(result).isEqualTo(expectedEvent);
+    }
+
+    @Test
+    void motionSensorMappingToSensorEventTest() {
+        SensorEventProto event = TestSensorEntities.createMotionSensorEventProto();
+        SensorEvent expectedEvent = TestSensorEntities.createMotionSenorEvent(TestSensorEntities.SENSOR_ID, TestSensorEntities.HUB_ID);
+
+        SensorEvent result = SensorMapper.mapToMotionSensorEvent(event);
+
+        assertThat(result).isEqualTo(expectedEvent);
+    }
+
+    @Test
+    void switchSensorMappingToSensorEventTest() {
+        SensorEventProto event = TestSensorEntities.createSwitchSensorEventProto();
+        SensorEvent expectedEvent = TestSensorEntities.createSwitchSenorEvent(TestSensorEntities.SENSOR_ID, TestSensorEntities.HUB_ID);
+
+        SensorEvent result = SensorMapper.mapToSwitchSensorEvent(event);
+
+        assertThat(result).isEqualTo(expectedEvent);
+    }
+
+    @Test
+    void temperatureSensorMappingToSensorEventTest() {
+        SensorEventProto event = TestSensorEntities.createTemperatureSensorEventProto();
+        SensorEvent expectedEvent = TestSensorEntities.createTemperatureSenorEvent(TestSensorEntities.SENSOR_ID, TestSensorEntities.HUB_ID);
+
+        SensorEvent result = SensorMapper.mapToTemperatureSensorEvent(event);
 
         assertThat(result).isEqualTo(expectedEvent);
     }

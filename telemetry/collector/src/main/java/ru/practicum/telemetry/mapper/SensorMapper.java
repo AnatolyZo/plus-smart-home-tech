@@ -1,8 +1,13 @@
 package ru.practicum.telemetry.mapper;
 
+import com.google.protobuf.Timestamp;
 import org.apache.avro.specific.SpecificRecordBase;
 import ru.practicum.telemetry.sensors.*;
+import ru.practicum.telemetry.sensors.SensorEvent;
+import ru.yandex.practicum.grpc.telemetry.event.*;
 import ru.yandex.practicum.kafka.telemetry.event.*;
+
+import java.time.Instant;
 
 public class SensorMapper {
     public static SpecificRecordBase toAvro(SensorEvent sensorEvent) {
@@ -64,5 +69,60 @@ public class SensorMapper {
         sensorEventAvro.setTimestamp(sensorEvent.getTimestamp());
         sensorEventAvro.setPayload(payload);
         return sensorEventAvro;
+    }
+
+    private static void setSensorEventFields(SensorEvent sensorEvent, SensorEventProto sensorEventProto) {
+        Timestamp timestamp = sensorEventProto.getTimestamp();
+        Instant instant = Instant.ofEpochSecond(timestamp.getSeconds(), timestamp.getNanos());
+
+        sensorEvent.setId(sensorEventProto.getId());
+        sensorEvent.setHubId(sensorEventProto.getHubId());
+        sensorEvent.setTimestamp(instant);
+    }
+
+    public static SensorEvent mapToClimateSensorEvent(SensorEventProto event) {
+        ClimateSensorProto climateSensorProto = event.getClimateSensor();
+        ClimateSensorEvent climateSensorEvent = new ClimateSensorEvent();
+        setSensorEventFields(climateSensorEvent, event);
+        climateSensorEvent.setTemperatureC(climateSensorProto.getTemperatureC());
+        climateSensorEvent.setHumidity(climateSensorProto.getHumidity());
+        climateSensorEvent.setCo2Level(climateSensorProto.getCo2Level());
+        return climateSensorEvent;
+    }
+
+    public static SensorEvent mapToLightSensorEvent(SensorEventProto event) {
+        LightSensorProto lightSensorProto = event.getLightSensor();
+        LightSensorEvent lightSensorEvent = new LightSensorEvent();
+        setSensorEventFields(lightSensorEvent, event);
+        lightSensorEvent.setLinkQuality(lightSensorProto.getLinkQuality());
+        lightSensorEvent.setLuminosity(lightSensorProto.getLuminosity());
+        return lightSensorEvent;
+    }
+
+    public static SensorEvent mapToMotionSensorEvent(SensorEventProto event) {
+        MotionSensorProto motionSensorProto = event.getMotionSensor();
+        MotionSensorEvent motionSensorEvent = new MotionSensorEvent();
+        setSensorEventFields(motionSensorEvent, event);
+        motionSensorEvent.setLinkQuality(motionSensorProto.getLinkQuality());
+        motionSensorEvent.setMotion(motionSensorProto.getMotion());
+        motionSensorEvent.setVoltage(motionSensorProto.getVoltage());
+        return motionSensorEvent;
+    }
+
+    public static SensorEvent mapToSwitchSensorEvent(SensorEventProto event) {
+        SwitchSensorProto switchSensorProto = event.getSwitchSensor();
+        SwitchSensorEvent switchSensorEvent = new SwitchSensorEvent();
+        setSensorEventFields(switchSensorEvent, event);
+        switchSensorEvent.setState(switchSensorProto.getState());
+        return switchSensorEvent;
+    }
+
+    public static SensorEvent mapToTemperatureSensorEvent(SensorEventProto event) {
+        TemperatureSensorProto temperatureSensorProto = event.getTemperatureSensor();
+        TemperatureSensorEvent temperatureSensorEvent = new TemperatureSensorEvent();
+        setSensorEventFields(temperatureSensorEvent, event);
+        temperatureSensorEvent.setTemperatureC(temperatureSensorProto.getTemperatureC());
+        temperatureSensorEvent.setTemperatureF(temperatureSensorProto.getTemperatureF());
+        return temperatureSensorEvent;
     }
 }

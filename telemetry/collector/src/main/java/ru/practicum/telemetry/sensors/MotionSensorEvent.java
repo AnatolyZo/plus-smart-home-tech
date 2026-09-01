@@ -1,5 +1,6 @@
 package ru.practicum.telemetry.sensors;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -7,6 +8,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
+@EqualsAndHashCode(callSuper = true)
 public class MotionSensorEvent extends SensorEvent {
     private int linkQuality;
     private boolean motion;
