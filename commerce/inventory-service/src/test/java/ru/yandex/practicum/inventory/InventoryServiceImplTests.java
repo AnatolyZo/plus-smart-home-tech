@@ -5,10 +5,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.yandex.practicum.inventory.dto.InventoryDto;
-import ru.yandex.practicum.inventory.dto.ReserveRequest;
-import ru.yandex.practicum.inventory.dto.ReserveResponse;
-import ru.yandex.practicum.inventory.dto.UpdateInventoryRequest;
+import ru.yandex.practicum.inventory.dto.*;
 import ru.yandex.practicum.inventory.entity.InventoryUnit;
 import ru.yandex.practicum.inventory.exception.EntityAlreadyExistsException;
 import ru.yandex.practicum.inventory.exception.InsufficientStockException;
@@ -132,7 +129,7 @@ class InventoryServiceImplTests {
 
     @Test
     void createInventoryUnit_success() {
-        ReserveRequest request = new ReserveRequest(100L, 50);
+        CreateInventoryRequest request = new CreateInventoryRequest(100L, 50);
 
         when(inventoryRepository.existsByProductId(100L)).thenReturn(false);
         when(inventoryRepository.save(any(InventoryUnit.class))).thenAnswer(inv -> {
@@ -152,7 +149,7 @@ class InventoryServiceImplTests {
 
     @Test
     void createInventoryUnit_throwsWhenAlreadyExists() {
-        ReserveRequest request = new ReserveRequest(100L, 50);
+        CreateInventoryRequest request = new CreateInventoryRequest(100L, 50);
 
         when(inventoryRepository.existsByProductId(100L)).thenReturn(true);
 

@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS products (
     name varchar(255),
     description varchar(500),
     price DECIMAL,
-    category_id BIGINT,
+    category_id BIGINT NOT NULL,
     image_url TEXT,
     active BOOLEAN,
     FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE

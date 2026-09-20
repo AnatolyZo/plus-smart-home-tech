@@ -4,10 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.yandex.practicum.inventory.dto.InventoryDto;
-import ru.yandex.practicum.inventory.dto.ReserveRequest;
-import ru.yandex.practicum.inventory.dto.ReserveResponse;
-import ru.yandex.practicum.inventory.dto.UpdateInventoryRequest;
+import ru.yandex.practicum.inventory.dto.*;
 import ru.yandex.practicum.inventory.entity.InventoryUnit;
 import ru.yandex.practicum.inventory.exception.EntityAlreadyExistsException;
 import ru.yandex.practicum.inventory.exception.InsufficientStockException;
@@ -57,7 +54,7 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     @Transactional
-    public InventoryDto createInventoryUnit(ReserveRequest request) {
+    public InventoryDto createInventoryUnit(CreateInventoryRequest request) {
         log.trace("Инициировано создание складской записи");
         boolean isProductAlreadyExists = inventoryRepository.existsByProductId(request.productId());
 

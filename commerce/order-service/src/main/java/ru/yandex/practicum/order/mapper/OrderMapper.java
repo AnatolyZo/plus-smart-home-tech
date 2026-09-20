@@ -3,6 +3,7 @@ package ru.yandex.practicum.order.mapper;
 import ru.yandex.practicum.order.dto.CreateOrderRequest;
 import ru.yandex.practicum.order.dto.OrderDto;
 import ru.yandex.practicum.order.dto.OrderItemDto;
+import ru.yandex.practicum.order.dto.OrderStatuses;
 import ru.yandex.practicum.order.entity.Order;
 
 import java.math.BigDecimal;
@@ -27,7 +28,7 @@ public class OrderMapper {
         return Order.builder()
                 .customerName(request.customerName())
                 .customerEmail(request.customerEmail())
-                .status("CREATED")
+                .status(OrderStatuses.CREATED.name())
                 .totalPrice(totalPrice)
                 .statusDetails("Создан новый заказ")
                 .createdAt(LocalDateTime.now())
