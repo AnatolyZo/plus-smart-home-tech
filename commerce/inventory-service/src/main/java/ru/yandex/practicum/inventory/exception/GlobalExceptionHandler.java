@@ -66,4 +66,11 @@ public class GlobalExceptionHandler {
         log.error("Внутренняя ошибка сервера", e);
         return new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Внутренняя ошибка сервера");
     }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleEntityAlreadyExists(EntityAlreadyExistsException e) {
+        log.warn("Сущность уже существует: {}", e.getMessage());
+        return new ErrorResponse(HttpStatus.CONFLICT.value(), "Сущность уже существует");
+    }
 }
