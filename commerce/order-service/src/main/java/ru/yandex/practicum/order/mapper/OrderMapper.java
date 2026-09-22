@@ -6,7 +6,6 @@ import ru.yandex.practicum.order.dto.OrderItemDto;
 import ru.yandex.practicum.order.dto.OrderStatuses;
 import ru.yandex.practicum.order.entity.Order;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -24,12 +23,11 @@ public class OrderMapper {
                 .build();
     }
 
-    public static Order toOrder(CreateOrderRequest request, BigDecimal totalPrice) {
+    public static Order toOrder(CreateOrderRequest request) {
         return Order.builder()
                 .customerName(request.customerName())
                 .customerEmail(request.customerEmail())
-                .status(OrderStatuses.CREATED.name())
-                .totalPrice(totalPrice)
+                .status(OrderStatuses.CONFIRMED.name())
                 .statusDetails("Создан новый заказ")
                 .createdAt(LocalDateTime.now())
                 .build();

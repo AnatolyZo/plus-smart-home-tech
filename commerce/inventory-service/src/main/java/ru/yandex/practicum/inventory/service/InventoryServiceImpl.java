@@ -100,6 +100,25 @@ public class InventoryServiceImpl implements InventoryService {
         return InventoryMapper.toInventoryDto(inventoryUnit);
     }
 
+    @Override
+    @Transactional
+    public ReserveResponse releaseProductReservation(ReleaseRequest request) {
+        log.trace("Инициировано снятие резерва товара");
+        InventoryUnit inventoryUnit = downloadInventoryUnit(request.productId());
+
+        if (request.reservedQuantity() > inventoryUnit.getReservedQuantity()) {
+            log.warn("Требуемое к снятию с резерва количество товара с id {} меньше общего количества зарезервированных, снятие с резерва отклонено", inventoryUnit.getProductId());
+            throw new IllegalArgumentException(String.format("Требуемое к снятию с резерва количество товара с id %d меньше общего количества зарезервированных, снятие с резерва отклонено", inventoryUnit.getProductId()));
+        }
+
+        inventoryUnit.setReservedQuantity(inventoryUnit.getReservedQuantity() - request.reservedQuantity());
+        inventoryUnit.setAvailableQuantity(inventoryUnit.getAvailableQuantity() + request.reservedQuantity());
+        InventoryUnit savedInventoryUnit = inventoryRepository.save(inventoryUnit);
+        inventoryRepository.flush();
+
+        return new ReserveResponse(true, savedInventoryUnit.getAvailableQuantity(), "Товар успешно снят с резерва");
+    }
+
     private InventoryUnit downloadInventoryUnit(long productId) {
         return inventoryRepository.findByProductId(productId)
                 .orElseThrow(() -> {
