@@ -10,6 +10,6 @@ public record ReleaseRequest(
 
         @NotNull(message = "Количество обязательно")
         @Min(value = 1, message = "Количество должно быть не менее 1")
-        Integer reservedQuantity
+        Integer quantity
 ) {
 }

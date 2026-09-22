@@ -192,7 +192,7 @@ class OrderOrchestrationServiceTests {
         assertThat(ex.getMessage()).contains("Ошибка резервации товаров");
 
         verify(inventoryClient).releaseStock(argThat(rr ->
-                rr.productId() == 100L && rr.reservedQuantity() == 2));
+                rr.productId() == 100L && rr.quantity() == 2));
         verify(orderService, never()).saveOrder(any(), any());
     }
 }
