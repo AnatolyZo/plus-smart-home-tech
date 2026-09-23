@@ -14,4 +14,6 @@ public interface InventoryService {
     ReserveResponse createProductReservation(ReserveRequest request);
 
     InventoryDto getRemainingProductQuantities(long productId);
+
+    ReserveResponse releaseProductReservation(ReleaseRequest request);
 }

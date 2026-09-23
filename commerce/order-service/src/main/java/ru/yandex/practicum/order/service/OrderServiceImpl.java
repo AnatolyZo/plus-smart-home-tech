@@ -11,12 +11,14 @@ import ru.yandex.practicum.order.dto.OrderItemRequest;
 import ru.yandex.practicum.order.entity.Order;
 import ru.yandex.practicum.order.entity.OrderItem;
 import ru.yandex.practicum.order.exception.NotFoundException;
+import ru.yandex.practicum.order.feign.ProductDto;
 import ru.yandex.practicum.order.mapper.OrderItemMapper;
 import ru.yandex.practicum.order.mapper.OrderMapper;
 import ru.yandex.practicum.order.repository.OrderRepository;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -35,9 +37,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public OrderDto createOrder(CreateOrderRequest request) {
-        log.trace("Инициировано создание заказа");
-        Order order = formOrder(request);
+    public OrderDto saveOrder(CreateOrderRequest request, Map<Long, ProductDto> productsMap) {
+        log.trace("Инициировано сохранение заказа");
+        Order order = formOrder(request, productsMap);
         Order savedOrder = orderRepository.save(order);
         log.debug("Сохранен заказ {}", savedOrder);
         List<OrderItemDto> savedOrderItemDtos = formOrderItemDtoList(savedOrder);
@@ -65,18 +67,23 @@ public class OrderServiceImpl implements OrderService {
         return formOrderDtoList(orders);
     }
 
-    private Order formOrder(CreateOrderRequest request) {
-        BigDecimal totalPrice = request.items().stream()
-                .map(item -> item.price().multiply(BigDecimal.valueOf(item.quantity())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        Order order = OrderMapper.toOrder(request, totalPrice);
+    private Order formOrder(CreateOrderRequest request, Map<Long, ProductDto> productsMap) {
+        Order order = OrderMapper.toOrder(request);
 
         //Установление связей: каждому OrderItem добавляем Order и формируем список из OrderItem
         for (OrderItemRequest itemRequest : request.items()) {
+            ProductDto productDto = productsMap.get(itemRequest.productId());
             OrderItem orderItem = OrderItemMapper.toOrderItem(itemRequest);
+            orderItem.setProductName(productDto.name());
+            orderItem.setPrice(productDto.price());
             order.addItem(orderItem);
         }
+
+        BigDecimal totalPrice = order.getItems().stream()
+                .map(item -> item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        order.setTotalPrice(totalPrice);
 
         return order;
     }

@@ -11,11 +11,13 @@ import ru.yandex.practicum.order.dto.OrderItemRequest;
 import ru.yandex.practicum.order.entity.Order;
 import ru.yandex.practicum.order.entity.OrderItem;
 import ru.yandex.practicum.order.exception.NotFoundException;
+import ru.yandex.practicum.order.feign.ProductDto;
 import ru.yandex.practicum.order.repository.OrderRepository;
 import ru.yandex.practicum.order.service.OrderServiceImpl;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -58,12 +60,15 @@ class OrderServiceImplTests {
     }
 
     @Test
-    void createOrder_success() {
-        OrderItemRequest itemRequest = new OrderItemRequest(
-                100L, "Смартфон", 2, new BigDecimal("19999.00"));
+    void saveOrder_success() {
+        OrderItemRequest itemRequest = new OrderItemRequest(100L, 2);
 
         CreateOrderRequest request = new CreateOrderRequest(
                 "user@test.com", "Иван Иванов", List.of(itemRequest));
+
+        ProductDto productDto = new ProductDto(
+                100L, "Смартфон", "Описание", new BigDecimal("19999.00"), true);
+        Map<Long, ProductDto> productsMap = Map.of(100L, productDto);
 
         Order savedOrder = buildOrder(1L, "user@test.com", new BigDecimal("39998.00"));
         savedOrder.getItems().clear();
@@ -78,7 +83,7 @@ class OrderServiceImplTests {
 
         when(orderRepository.save(any(Order.class))).thenReturn(savedOrder);
 
-        OrderDto result = orderService.createOrder(request);
+        OrderDto result = orderService.saveOrder(request, productsMap);
 
         assertThat(result.id()).isEqualTo(1L);
         assertThat(result.items()).hasSize(1);
@@ -89,14 +94,18 @@ class OrderServiceImplTests {
     }
 
     @Test
-    void createOrder_multipleItems_calculatesTotalPrice() {
-        OrderItemRequest item1 = new OrderItemRequest(
-                100L, "Книга", 3, new BigDecimal("500.00"));
-        OrderItemRequest item2 = new OrderItemRequest(
-                200L, "Ноутбук", 1, new BigDecimal("50000.00"));
+    void saveOrder_multipleItems_calculatesTotalPrice() {
+        OrderItemRequest item1 = new OrderItemRequest(100L, 3);
+        OrderItemRequest item2 = new OrderItemRequest(200L, 1);
 
         CreateOrderRequest request = new CreateOrderRequest(
                 "user@test.com", "Иван Иванов", List.of(item1, item2));
+
+        ProductDto product1 = new ProductDto(
+                100L, "Книга", "Описание", new BigDecimal("500.00"), true);
+        ProductDto product2 = new ProductDto(
+                200L, "Ноутбук", "Описание", new BigDecimal("50000.00"), true);
+        Map<Long, ProductDto> productsMap = Map.of(100L, product1, 200L, product2);
 
         Order savedOrder = buildOrder(5L, "user@test.com", new BigDecimal("51500.00"));
         savedOrder.getItems().clear();
@@ -115,7 +124,7 @@ class OrderServiceImplTests {
 
         when(orderRepository.save(any(Order.class))).thenReturn(savedOrder);
 
-        OrderDto result = orderService.createOrder(request);
+        OrderDto result = orderService.saveOrder(request, productsMap);
 
         assertThat(result.totalPrice()).isEqualByComparingTo(new BigDecimal("51500.00"));
         assertThat(result.items()).hasSize(2);
@@ -123,12 +132,15 @@ class OrderServiceImplTests {
     }
 
     @Test
-    void createOrder_setsOrderItemsRelation() {
-        OrderItemRequest itemRequest = new OrderItemRequest(
-                100L, "Товар", 1, new BigDecimal("100.00"));
+    void saveOrder_setsOrderItemsRelation() {
+        OrderItemRequest itemRequest = new OrderItemRequest(100L, 1);
 
         CreateOrderRequest request = new CreateOrderRequest(
                 "user@test.com", "Иван Иванов", List.of(itemRequest));
+
+        ProductDto productDto = new ProductDto(
+                100L, "Товар", "Описание", new BigDecimal("100.00"), true);
+        Map<Long, ProductDto> productsMap = Map.of(100L, productDto);
 
         Order savedOrder = buildOrder(1L, "user@test.com", new BigDecimal("100.00"));
         savedOrder.getItems().clear();
@@ -144,7 +156,7 @@ class OrderServiceImplTests {
 
         when(orderRepository.save(any(Order.class))).thenReturn(savedOrder);
 
-        orderService.createOrder(request);
+        orderService.saveOrder(request, productsMap);
 
         verify(orderRepository).save(argThat(order -> {
             List<OrderItem> items = order.getItems();

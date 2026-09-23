@@ -46,11 +46,11 @@ class InventoryServiceAcceptanceTest {
         assertThat(asInt(created.get("quantity")))
                 .as("Созданная складская запись должна хранить общее количество товара")
                 .isEqualTo(10);
-        assertThat(asInt(created.get("reservedQuantity")))
+        assertThat(asInt(created.get("quantity")))
                 .as("У новой складской записи зарезервированное количество должно быть равно 0")
                 .isZero();
         assertThat(asInt(created.get("availableQuantity")))
-                .as("Доступное количество должно вычисляться как quantity - reservedQuantity")
+                .as("Доступное количество должно вычисляться как quantity - quantity")
                 .isEqualTo(10);
 
         MvcResult updateResponse = mvc.perform(put("/api/inventory")
