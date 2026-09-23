@@ -183,13 +183,13 @@ class OrderOrchestrationServiceTests {
             if (rr.productId() == 200L) {
                 throw feignException;
             }
-            return new ReserveResponse(100L, rr.quantity(), 1);
+            return null;
         });
 
         OrderProcessingException ex = assertThrows(OrderProcessingException.class,
                 () -> orderOrchestrationService.createOrder(request));
 
-        assertThat(ex.getMessage()).contains("Ошибка резервации товаров");
+        assertThat(ex.getMessage()).contains("Ошибка резервирования товаров");
 
         verify(inventoryClient).releaseStock(argThat(rr ->
                 rr.productId() == 100L && rr.quantity() == 2));

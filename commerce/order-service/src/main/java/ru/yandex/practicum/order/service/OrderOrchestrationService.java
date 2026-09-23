@@ -63,7 +63,7 @@ public class OrderOrchestrationService {
     }
 
     private void reserveProducts(CreateOrderRequest request) {
-        List<ReserveResponse> reservedOrders = new ArrayList<>();
+        List<ReserveRequest> reservedOrders = new ArrayList<>();
 
         try {
             request.items().stream()
@@ -74,8 +74,8 @@ public class OrderOrchestrationService {
                     .entrySet().stream()
                     .map(entry -> new ReserveRequest(entry.getKey(), entry.getValue()))
                     .forEach(reserveRequest -> {
-                        ReserveResponse reserveResponse = reserveProduct(reserveRequest);
-                        reservedOrders.add(reserveResponse);
+                        reserveProduct(reserveRequest);
+                        reservedOrders.add(reserveRequest);
                     });
         } catch (FeignException e) {
             rollbackReserve(reservedOrders);
@@ -94,20 +94,20 @@ public class OrderOrchestrationService {
         }
     }
 
-    private ReserveResponse reserveProduct(ReserveRequest request) {
+    private void reserveProduct(ReserveRequest request) {
         try {
-            return inventoryClient.reserveStock(request);
+            inventoryClient.reserveStock(request);
         } catch (FeignException.ServiceUnavailable e) {
             log.warn("Сервис резервирования недоступен");
             throw new OrderProcessingException("Сервис резервирования недоступен");
         }
     }
 
-    private void rollbackReserve(List<ReserveResponse> reservedOrders) {
+    private void rollbackReserve(List<ReserveRequest> reservedOrders) {
         reservedOrders.stream()
                 .map(reserveResponse -> new ReleaseRequest(
                         reserveResponse.productId(),
-                        reserveResponse.reservedQuantity()
+                        reserveResponse.quantity()
                 ))
                 .forEach(this::releaseProduct);
     }
