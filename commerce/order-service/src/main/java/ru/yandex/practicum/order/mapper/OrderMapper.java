@@ -23,11 +23,11 @@ public class OrderMapper {
                 .build();
     }
 
-    public static Order toOrder(CreateOrderRequest request) {
+    public static Order toOrder(CreateOrderRequest request, OrderStatuses status) {
         return Order.builder()
                 .customerName(request.customerName())
                 .customerEmail(request.customerEmail())
-                .status(OrderStatuses.CONFIRMED.name())
+                .status(status.name())
                 .statusDetails("Создан новый заказ")
                 .createdAt(LocalDateTime.now())
                 .build();

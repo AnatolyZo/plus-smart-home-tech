@@ -9,4 +9,7 @@ public record ProductDto(
         BigDecimal price,
         Boolean active
 ) {
+    public ProductDto withDescription(String newDescription) {
+        return new ProductDto(id, name, newDescription, price, active);
+    }
 }

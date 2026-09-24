@@ -8,6 +8,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import ru.yandex.practicum.order.dto.CreateOrderRequest;
 import ru.yandex.practicum.order.dto.OrderDto;
 import ru.yandex.practicum.order.dto.OrderItemRequest;
+import ru.yandex.practicum.order.dto.OrderStatuses;
 import ru.yandex.practicum.order.entity.Order;
 import ru.yandex.practicum.order.entity.OrderItem;
 import ru.yandex.practicum.order.exception.NotFoundException;
@@ -83,7 +84,7 @@ class OrderServiceImplTests {
 
         when(orderRepository.save(any(Order.class))).thenReturn(savedOrder);
 
-        OrderDto result = orderService.saveOrder(request, productsMap);
+        OrderDto result = orderService.saveOrder(request, productsMap, OrderStatuses.CONFIRMED);
 
         assertThat(result.id()).isEqualTo(1L);
         assertThat(result.items()).hasSize(1);
@@ -124,7 +125,7 @@ class OrderServiceImplTests {
 
         when(orderRepository.save(any(Order.class))).thenReturn(savedOrder);
 
-        OrderDto result = orderService.saveOrder(request, productsMap);
+        OrderDto result = orderService.saveOrder(request, productsMap, OrderStatuses.CONFIRMED);
 
         assertThat(result.totalPrice()).isEqualByComparingTo(new BigDecimal("51500.00"));
         assertThat(result.items()).hasSize(2);
@@ -156,7 +157,7 @@ class OrderServiceImplTests {
 
         when(orderRepository.save(any(Order.class))).thenReturn(savedOrder);
 
-        orderService.saveOrder(request, productsMap);
+        orderService.saveOrder(request, productsMap, OrderStatuses.CONFIRMED);
 
         verify(orderRepository).save(argThat(order -> {
             List<OrderItem> items = order.getItems();
