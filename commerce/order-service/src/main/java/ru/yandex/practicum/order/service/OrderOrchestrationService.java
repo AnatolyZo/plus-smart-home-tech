@@ -116,7 +116,6 @@ public class OrderOrchestrationService {
             }
 
             log.warn("Сервис резервирования недоступен, откатываем зарезервированное");
-            rollbackReserve(reservedOrders);
         }
 
     }
