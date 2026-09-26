@@ -5,20 +5,30 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.order.feign.ProductClient;
 import ru.yandex.practicum.order.feign.ProductDto;
+import ru.yandex.practicum.order.feign.Retryable;
 
 @Service
 @RequiredArgsConstructor
-public class ProductAdapter {
+public class ProductAdapter implements Retryable {
     private final ProductClient productClient;
 
     public RemoteCallResult<ProductDto> getProductById(Long id) {
-        try {
-            ProductDto product = productClient.getProductById(id);
-            return new RemoteCallResult.Success<>(product);
-        } catch (FeignException e) {
-            return RemoteCallMethods.toFailureResult(e);
-        } catch (Exception e) {
-            return RemoteCallMethods.toFailureResult(e);
+        int attemptsToFindAliveServer = 5;
+
+        for (int attempt = 1; attempt <= attemptsToFindAliveServer; attempt++) {
+            try {
+                ProductDto product = productClient.getProductById(id);
+                return new RemoteCallResult.Success<>(product);
+            } catch (FeignException e) {
+                if (attempt < attemptsToFindAliveServer && isRetryable(e)) {
+                    continue;
+                }
+                return RemoteCallMethods.toFailureResult(e);
+            } catch (Exception e) {
+                return RemoteCallMethods.toFailureResult(e);
+            }
         }
+
+        throw new IllegalStateException("Ошибка логики работы программы");
     }
 }

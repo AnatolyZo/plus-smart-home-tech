@@ -45,25 +45,6 @@ spring:
                   firstBackoff: 100ms
                   maxBackoff: 500ms
 
-        - id: product-service-products-write
-          uri: lb://product-service
-          predicates:
-            - Path=/api/products/**
-            - Method=POST
-          filters:
-            - name: Retry
-              args:
-                retries: 2
-                statuses:
-                  - BAD_GATEWAY
-                  - SERVICE_UNAVAILABLE
-                  - GATEWAY_TIMEOUT
-                methods:
-                  - POST
-                backoff:
-                  firstBackoff: 100ms
-                  maxBackoff: 500ms
-
         - id: product-service-products
           uri: lb://product-service
           predicates:
