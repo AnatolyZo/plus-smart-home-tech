@@ -12,7 +12,7 @@ public class ProductAdapter {
     private final ProductClient productClient;
 
     public RemoteCallResult<ProductDto> getProductById(Long id) {
-        int attemptsToFindAliveServer = 5;
+        int attemptsToFindAliveServer = 10;
 
         for (int attempt = 1; attempt <= attemptsToFindAliveServer; attempt++) {
             try {
