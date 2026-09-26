@@ -5,11 +5,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.order.feign.ProductClient;
 import ru.yandex.practicum.order.feign.ProductDto;
-import ru.yandex.practicum.order.feign.Retryable;
 
 @Service
 @RequiredArgsConstructor
-public class ProductAdapter implements Retryable {
+public class ProductAdapter {
     private final ProductClient productClient;
 
     public RemoteCallResult<ProductDto> getProductById(Long id) {
@@ -30,5 +29,10 @@ public class ProductAdapter implements Retryable {
         }
 
         throw new IllegalStateException("Ошибка логики работы программы");
+    }
+
+    private boolean isRetryable(FeignException e) {
+        int status = e.status();
+        return status >= 500 || status == -1;
     }
 }
