@@ -1,5 +1,7 @@
 package ru.yandex.practicum.gateway.config;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -14,9 +16,15 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 
+import java.util.List;
+
 @Configuration
 @EnableWebFluxSecurity
+@RequiredArgsConstructor
+@EnableConfigurationProperties(UsersProperties.class)
 public class SecurityConfig {
+    private final UsersProperties usersProperties;
+
     private static final String URL_API = "/api";
     private static final String URL_PRODUCTS = "/products";
     private static final String URL_CATEGORIES = "/categories";
@@ -56,24 +64,24 @@ public class SecurityConfig {
     }
 
     @Bean
-    public ReactiveUserDetailsService reactiveUserDetailsService(PasswordEncoder passwordEncoder) {
-        UserDetails ivan = User.builder()
-                .username("ivan")
-                .password(passwordEncoder.encode("ivan"))
-                .roles("USER")
-                .build();
+    public ReactiveUserDetailsService reactiveUserDetailsService(UsersProperties usersProperties, PasswordEncoder passwordEncoder) {
+        List<UserDetails> users = usersProperties.getUsers().stream()
+                .map(userData -> createUserDetails(userData, passwordEncoder))
+                .toList();
 
-        UserDetails anna = User.builder()
-                .username("anna")
-                .password(passwordEncoder.encode("anna"))
-                .roles("USER", "ADMIN")
-                .build();
-
-        return new MapReactiveUserDetailsService(ivan, anna);
+        return new MapReactiveUserDetailsService(users);
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    private UserDetails createUserDetails(UsersProperties.UserData userData, PasswordEncoder passwordEncoder) {
+        return User.builder()
+                .username(userData.getUsername())
+                .password(passwordEncoder.encode(userData.getPassword()))
+                .roles(userData.getRoles().toArray(String[]::new))
+                .build();
     }
 }
