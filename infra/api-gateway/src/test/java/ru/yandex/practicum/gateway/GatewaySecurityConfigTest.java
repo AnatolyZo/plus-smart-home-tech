@@ -15,19 +15,7 @@ import java.util.Base64;
 
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
-@SpringBootTest(
-        webEnvironment = SpringBootTest.WebEnvironment.MOCK,
-        properties = {
-                "spring.cloud.config.enabled=false",
-                "eureka.client.enabled=false",
-                "app.security.users[0].username=ivan",
-                "app.security.users[0].password=ivan",
-                "app.security.users[0].roles[0]=USER",
-                "app.security.users[1].username=anna",
-                "app.security.users[1].password=anna",
-                "app.security.users[1].roles[0]=ADMIN",
-                "app.security.users[1].roles[1]=USER"
-        })
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureWebTestClient
 class GatewaySecurityConfigTest {
     private static final String IVAN_WORD = "ivan";
