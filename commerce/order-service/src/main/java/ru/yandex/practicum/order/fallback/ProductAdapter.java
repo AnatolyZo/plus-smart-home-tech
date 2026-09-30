@@ -12,27 +12,13 @@ public class ProductAdapter {
     private final ProductClient productClient;
 
     public RemoteCallResult<ProductDto> getProductById(Long id) {
-        int attemptsToFindAliveServer = 10;
-
-        for (int attempt = 1; attempt <= attemptsToFindAliveServer; attempt++) {
-            try {
-                ProductDto product = productClient.getProductById(id);
-                return new RemoteCallResult.Success<>(product);
-            } catch (FeignException e) {
-                if (attempt < attemptsToFindAliveServer && isRetryable(e)) {
-                    continue;
-                }
-                return RemoteCallMethods.toFailureResult(e);
-            } catch (Exception e) {
-                return RemoteCallMethods.toFailureResult(e);
-            }
+        try {
+            ProductDto product = productClient.getProductById(id);
+            return new RemoteCallResult.Success<>(product);
+        } catch (FeignException e) {
+            return RemoteCallMethods.toFailureResult(e);
+        } catch (Exception e) {
+            return RemoteCallMethods.toFailureResult(e);
         }
-
-        throw new IllegalStateException("Ошибка логики работы программы");
-    }
-
-    private boolean isRetryable(FeignException e) {
-        int status = e.status();
-        return status >= 500 || status == -1;
     }
 }

@@ -43,19 +43,33 @@ public class SecurityConfig {
                         .pathMatchers(HttpMethod.OPTIONS, ANY_PATH).permitAll()
                         .pathMatchers("/swagger-ui/**", "/webjars/**").permitAll()
                         .pathMatchers("/v3/api-docs/**").permitAll()
-                        .pathMatchers(HttpMethod.GET, URL_API + URL_PRODUCTS + ANY_PATH).permitAll()
-                        .pathMatchers(HttpMethod.GET, URL_API + URL_CATEGORIES + ANY_PATH).permitAll()
-                        .pathMatchers(HttpMethod.GET, URL_API + URL_INVENTORY + ANY_PATH).permitAll()
-                        .pathMatchers(HttpMethod.POST, URL_API + URL_ORDERS + ANY_PATH).hasRole(USER_ROLE)
-                        .pathMatchers(HttpMethod.GET, URL_API + URL_ORDERS + URL_BY_EMAIL).hasRole(USER_ROLE)
-                        .pathMatchers(HttpMethod.GET, URL_API + URL_ORDERS + "/{" + ID + "}").hasRole(USER_ROLE)
-                        .pathMatchers(HttpMethod.GET, URL_API + URL_ORDERS).hasRole(ADMIN_ROLE)
+                        .pathMatchers(HttpMethod.GET,
+                                URL_API + URL_PRODUCTS + ANY_PATH,
+                                URL_API + URL_INVENTORY + ANY_PATH,
+                                URL_API + URL_CATEGORIES + ANY_PATH).permitAll()
+                        .pathMatchers(HttpMethod.POST,
+                                URL_API + URL_ORDERS + ANY_PATH).hasRole(USER_ROLE)
+                        .pathMatchers(HttpMethod.GET,
+                                URL_API + URL_ORDERS + URL_BY_EMAIL,
+                                URL_API + URL_ORDERS + "/{" + ID + "}").hasRole(USER_ROLE)
+                        .pathMatchers(HttpMethod.GET,
+                                URL_API + URL_ORDERS).hasRole(ADMIN_ROLE)
                         .pathMatchers(HttpMethod.POST,
                                 URL_API + URL_PRODUCTS + ANY_PATH,
                                 URL_API + URL_INVENTORY + ANY_PATH,
                                 URL_API + URL_CATEGORIES + ANY_PATH).hasRole(ADMIN_ROLE)
-                        .pathMatchers(HttpMethod.PUT, URL_API + URL_INVENTORY + ANY_PATH).hasRole(ADMIN_ROLE)
-                        .pathMatchers(HttpMethod.PATCH, URL_API + URL_PRODUCTS + ANY_PATH).hasRole(ADMIN_ROLE)
+                        .pathMatchers(HttpMethod.PUT,
+                                URL_API + URL_PRODUCTS + ANY_PATH,
+                                URL_API + URL_INVENTORY + ANY_PATH,
+                                URL_API + URL_CATEGORIES + ANY_PATH).hasRole(ADMIN_ROLE)
+                        .pathMatchers(HttpMethod.PATCH,
+                                URL_API + URL_PRODUCTS + ANY_PATH,
+                                URL_API + URL_INVENTORY + ANY_PATH,
+                                URL_API + URL_CATEGORIES + ANY_PATH).hasRole(ADMIN_ROLE)
+                        .pathMatchers(HttpMethod.DELETE,
+                                URL_API + URL_PRODUCTS + ANY_PATH,
+                                URL_API + URL_INVENTORY + ANY_PATH,
+                                URL_API + URL_CATEGORIES + ANY_PATH).hasRole(ADMIN_ROLE)
                         .anyExchange().denyAll())
                 .httpBasic(Customizer.withDefaults())
                 .cors(Customizer.withDefaults())
@@ -64,7 +78,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public ReactiveUserDetailsService reactiveUserDetailsService(UsersProperties usersProperties, PasswordEncoder passwordEncoder) {
+    public ReactiveUserDetailsService reactiveUserDetailsService(PasswordEncoder passwordEncoder) {
         List<UserDetails> users = usersProperties.getUsers().stream()
                 .map(userData -> createUserDetails(userData, passwordEncoder))
                 .toList();

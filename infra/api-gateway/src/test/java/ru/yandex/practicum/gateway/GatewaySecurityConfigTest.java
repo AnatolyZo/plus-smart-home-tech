@@ -45,6 +45,24 @@ class GatewaySecurityConfigTest {
     }
 
     @Test
+    void orderCreate_wrongPassword_isUnauthorized() {
+        webTestClient.post()
+                .uri(ORDERS_ROUTE)
+                .header("Authorization", basic(IVAN_WORD, "wrong"))
+                .exchange()
+                .expectStatus().isUnauthorized();
+    }
+
+    @Test
+    void orderCreate_unknownUser_isUnauthorized() {
+        webTestClient.post()
+                .uri(ORDERS_ROUTE)
+                .header("Authorization", basic("unknown", "unknown"))
+                .exchange()
+                .expectStatus().isUnauthorized();
+    }
+
+    @Test
     void orderCreate_withUserCredentials_isOk() {
         webTestClient.post()
                 .uri(ORDERS_ROUTE)
