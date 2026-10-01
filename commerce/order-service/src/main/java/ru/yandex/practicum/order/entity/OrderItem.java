@@ -18,10 +18,12 @@ public class OrderItem {
 
     private long productId;
 
+    @Setter
     private String productName;
 
     private int quantity;
 
+    @Setter
     private BigDecimal price;
 
     @ManyToOne(fetch = FetchType.LAZY)

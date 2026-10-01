@@ -16,6 +16,7 @@ public class InventoryController {
     public static final String URL_API = "/api";
     public static final String URL_INVENTORY = "/inventory";
     public static final String URL_RESERVE = "/reserve";
+    public static final String URL_RELEASE = "/release";
     public static final String ID_PRODUCT = "productId";
     private final InventoryService inventoryService;
 
@@ -43,5 +44,10 @@ public class InventoryController {
     @GetMapping("/{" + ID_PRODUCT + "}")
     public InventoryDto getRemainingProductQuantities(@PathVariable long productId) {
         return inventoryService.getRemainingProductQuantities(productId);
+    }
+
+    @PostMapping(URL_RELEASE)
+    public ReserveResponse releaseProductReservation(@Valid @RequestBody ReleaseRequest request) {
+        return inventoryService.releaseProductReservation(request);
     }
 }

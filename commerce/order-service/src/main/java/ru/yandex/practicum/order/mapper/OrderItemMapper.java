@@ -18,9 +18,7 @@ public class OrderItemMapper {
     public static OrderItem toOrderItem(OrderItemRequest request) {
         return OrderItem.builder()
                 .productId(request.productId())
-                .productName(request.productName())
                 .quantity(request.quantity())
-                .price(request.price())
                 .build();
     }
 }

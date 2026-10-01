@@ -13,6 +13,34 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
+      client:
+        config:
+          default:
+            connectTimeout: 1000
+            readTimeout: 2000
+          inventory-service:
+            loggerLevel: basic
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        sliding-window-size: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+  timelimiter:
+    configs:
+      default:
+        timeout-duration: 3s
+
+logging:
+  level:
+    ru.yandex.practicum.order.feign.InventoryClient: DEBUG
 
 server:
   port: 0

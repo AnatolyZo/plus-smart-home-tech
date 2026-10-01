@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.order.dto.CreateOrderRequest;
 import ru.yandex.practicum.order.dto.OrderDto;
+import ru.yandex.practicum.order.service.OrderOrchestrationService;
 import ru.yandex.practicum.order.service.OrderService;
 
 import java.util.List;
@@ -19,6 +20,7 @@ public class OrderController {
     public static final String URL_BY_EMAIL = "/by-email";
     public static final String ID = "id";
     private final OrderService orderService;
+    private final OrderOrchestrationService orderOrchestrationService;
 
     @GetMapping
     public List<OrderDto> getAllOrders() {
@@ -28,7 +30,7 @@ public class OrderController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public OrderDto createOrder(@Valid @RequestBody CreateOrderRequest request) {
-        return orderService.createOrder(request);
+        return orderOrchestrationService.createOrder(request);
     }
 
     @GetMapping("/{" + ID + "}")

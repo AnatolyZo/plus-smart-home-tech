@@ -39,4 +39,11 @@ public class GlobalExceptionHandler {
         log.error("Внутренняя ошибка сервера", e);
         return new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Внутренняя ошибка сервера");
     }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    public ErrorResponse handleUnprocessable(OrderProcessingException e) {
+        log.warn("Нельзя обработать заказ", e);
+        return new ErrorResponse(HttpStatus.UNPROCESSABLE_ENTITY.value(), "Нельзя обработать заказ");
+    }
 }

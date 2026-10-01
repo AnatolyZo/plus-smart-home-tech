@@ -1,10 +1,7 @@
 package ru.yandex.practicum.order.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -28,6 +25,7 @@ public class Order {
 
     private String status;
 
+    @Setter
     private BigDecimal totalPrice;
 
     private String statusDetails;

@@ -1,0 +1,23 @@
+spring:
+  cloud:
+    config:
+      enabled: false
+
+eureka:
+  client:
+    enabled: false
+    register-with-eureka: false
+    fetch-registry: false
+
+app:
+  security:
+    users:
+      - username: ivan
+        password: ivan
+        roles:
+          - USER
+      - username: anna
+        password: anna
+        roles:
+          - USER
+          - ADMIN
